@@ -26,12 +26,13 @@ function AuthProvider({ children }) {
   }, [])
 
   //Função para cadastrar usuário no banco de dados
-  async function signUp(email, password, nome) {
+  async function signUp(email, senha, nome) {
     setLoadingAuth(true);
     //Cria usuário (email) e senha no firebase
-    await firebase.auth().createUserWithEmailAndPassword(email, password)
+    await firebase.auth().createUserWithEmailAndPassword(email, senha)
       .then(async (value) => {
-        let uid = value.uid;;
+        let uid = value.user.uid;
+        console.log(uid);
 
         //Adiciono o usuário ao banco de dados firestore na tabela (users)
         await firebase.firestore().collection('users')
@@ -63,6 +64,36 @@ function AuthProvider({ children }) {
     localStorage.setItem('SistemaUser', JSON.stringify(data));
   }
 
+  //Função para fazer o login do usuário
+  async function signIn(email, senha) {
+    setLoadingAuth(true);
+
+    //Loga o usuário no firebase
+    await firebase.auth().signInWithEmailAndPassword(email, senha)
+      .then(async (value) => {
+        let uid = value.user.uid; //pega o uid do usuário que está logado no firebase
+        console.log(uid);
+        //Pega as informações do usuário dentro do banco de dados firestore
+        const userProfile = await firebase.firestore().collection('users')
+          .doc(uid).get();
+
+        let data = {
+          uid: uid,
+          nome: userProfile.data().nome,
+          avatarUrl: userProfile.data().avatarUrl,
+          email: value.user.email
+        };
+
+        setUser(data); //Salva os dados do usuário
+        storageUser(data);//Salva os dados do usuário no localStorage
+        setLoadingAuth(false);
+
+      }).catch((error) => {
+        console.log("Lascou" + error);
+        setLoadingAuth(false);
+      })
+  }
+
   //signOut (Deslogar o usuário)
   async function signOut() {
     await firebase.auth().signOut();
@@ -77,7 +108,9 @@ function AuthProvider({ children }) {
         user,
         loading,
         signUp,
-        signOut
+        signOut,
+        signIn,
+        loadingAuth
       }}
     >
       {children}
