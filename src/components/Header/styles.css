@@ -51,10 +51,11 @@
   color: #FFFFFF;
 }
 
+/*
 .content{
   margin-left: 200px;
   padding: 1px 16px;
-}
+}*/
 
 /* Mobile com largura de 700px*/
 @media  screen and (max-width: 700px){
@@ -64,9 +65,9 @@
     position: relative;
   }
 
-  div.content{
+  /*div.content{
     margin-left: 0;
-  }
+  }*/
 
   .sidebar a{
     float: left;
