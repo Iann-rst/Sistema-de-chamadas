@@ -1,6 +1,7 @@
 import firebase from 'firebase/app';
-import 'firebase/auth';
-import 'firebase/firestore';
+import 'firebase/auth';//autenticação
+import 'firebase/firestore';//banco de dados
+import 'firebase/storage';//storage do firebase (salvar imagens)
 
 /**
  * Configuração e inicialização do firebase
