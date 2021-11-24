@@ -1,5 +1,8 @@
 /*Contexto de autenticação */
 
+import { toast } from 'react-toastify';
+
+
 import { useState, createContext, useEffect } from 'react';
 import firebase from '../services/firebaseConnection';
 
@@ -11,7 +14,7 @@ function AuthProvider({ children }) {
   const [loadingAuth, setLoadingAuth] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  //
+  //Busca as informações do usuário no localStorage
   useEffect(() => {
 
     function loadStorage() {
@@ -32,7 +35,6 @@ function AuthProvider({ children }) {
     await firebase.auth().createUserWithEmailAndPassword(email, senha)
       .then(async (value) => {
         let uid = value.user.uid;
-        console.log(uid);
 
         //Adiciono o usuário ao banco de dados firestore na tabela (users)
         await firebase.firestore().collection('users')
@@ -51,10 +53,12 @@ function AuthProvider({ children }) {
             setUser(data);
             storageUser(data);
             setLoadingAuth(false);
+            toast.success('Bem vindo a plataforma') //Alert de sucesso personalizado
           })
       })
       .catch((error) => {
         console.log(error);
+        toast.error('Ops, algo deu errado!'); //Alert de erro personalizado
         setLoadingAuth(false);
       })
   }
@@ -72,7 +76,6 @@ function AuthProvider({ children }) {
     await firebase.auth().signInWithEmailAndPassword(email, senha)
       .then(async (value) => {
         let uid = value.user.uid; //pega o uid do usuário que está logado no firebase
-        console.log(uid);
         //Pega as informações do usuário dentro do banco de dados firestore
         const userProfile = await firebase.firestore().collection('users')
           .doc(uid).get();
@@ -87,9 +90,11 @@ function AuthProvider({ children }) {
         setUser(data); //Salva os dados do usuário
         storageUser(data);//Salva os dados do usuário no localStorage
         setLoadingAuth(false);
+        toast.success('Bem vindo novamente!');//Alert de sucesso personalizado
 
       }).catch((error) => {
-        console.log("Lascou" + error);
+        console.log(error);
+        toast.error('Ops, algo deu errado!');//Alert de erro personalizado
         setLoadingAuth(false);
       })
   }
