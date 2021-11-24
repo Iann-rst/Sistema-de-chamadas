@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import logo from '../../assets/logo.png';
+import { AuthContext } from '../../contexts/auth';
 
 //Página de cadastro
 function SignUp() {
@@ -8,9 +9,14 @@ function SignUp() {
   const [senha, setSenha] = useState('');
   const [nome, setNome] = useState('')
 
+  const { signUp } = useContext(AuthContext);
+
   function handleSubmit(e) {
     e.preventDefault(); //para não atualizar a página
-    alert('Clicou');
+
+    if (nome !== '' && email !== '' && senha !== '') {
+      signUp(email, senha, nome);
+    }
   }
 
   return (
