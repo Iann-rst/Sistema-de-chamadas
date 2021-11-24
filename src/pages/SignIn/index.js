@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
+
+import { AuthContext } from '../../contexts/auth';
 
 import './styles.css';
 import logo from '../../assets/logo.png';
@@ -9,9 +11,14 @@ function SignIn() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
 
+  const { signIn, loadingAuth } = useContext(AuthContext);
+
+  //Função para pegar o email/senha e logar o usuário
   function handleSubmit(e) {
     e.preventDefault(); //para não atualizar a página
-    alert('Clicou');
+    if (email !== '' && senha !== '') {
+      signIn(email, senha);
+    }
   }
 
   return (
@@ -24,7 +31,7 @@ function SignIn() {
           <h1>Entrar</h1>
           <input type="text" placeholder="digite seu email" value={email} onChange={(e) => setEmail(e.target.value)} />
           <input type="password" placeholder="digite sua senha" value={senha} onChange={(e) => setSenha(e.target.value)} />
-          <button type="submit">Acessar</button>
+          <button type="submit">{loadingAuth ? 'Carregando...' : 'Acessar'}</button>
         </form>
         <Link to="/register">Criar uma conta</Link>
       </div>
