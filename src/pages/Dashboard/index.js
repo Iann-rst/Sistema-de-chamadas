@@ -6,6 +6,8 @@ import { FiMessageSquare, FiPlus, FiSearch, FiEdit2 } from 'react-icons/fi';
 import Title from '../../components/Title';
 /* Componente Header */
 import Header from '../../components/Header';
+/* Componente Modal */
+import Modal from '../../components/Modal';
 
 /* FIREBASE - Banco de Dados */
 import firebase from '../../services/firebaseConnection';
@@ -25,29 +27,31 @@ export default function Dashboard() {
   const [isEmpty, setIsEmpty] = useState(false);
   const [lastDocs, setLastDocs] = useState();
 
+  const [showPostModal, setShowPostModal] = useState(false);
+  const [detail, setDetail] = useState();
+
   //useEffect para mostrar os chamados (atendimentos) assim que renderizar o dashboard
   useEffect(() => {
+    //Função para carregar os chamados
+    async function loadChamados() {
+      await listRef.limit(5)
+        .get()
+        .then((snapshot) => {
+          updateState(snapshot);
+        })
+        .catch((error) => {
+          console.log('Deu algum erro', error);
+          setLoadingMore(false);
+        })
+
+      setLoading(false);
+    }
     loadChamados();
 
     return () => {
 
     }
   }, []);
-
-  //Função para carregar os chamados
-  async function loadChamados() {
-    await listRef.limit(5)
-      .get()
-      .then((snapshot) => {
-        updateState(snapshot);
-      })
-      .catch((error) => {
-        console.log('Deu algum erro', error);
-        setLoadingMore(false);
-      })
-
-    setLoading(false);
-  }
 
   //Busca os chamados no firebase e salva em uma lista
   async function updateState(snapshot) {
@@ -86,6 +90,12 @@ export default function Dashboard() {
       .then((snapshot) => {
         updateState(snapshot);
       })
+  }
+
+  //Função para mostrar os detalhes do chamado em um modal
+  function togglePostModal(item) {
+    setShowPostModal(!showPostModal);
+    setDetail(item);
   }
 
   if (loading) {
@@ -142,7 +152,7 @@ export default function Dashboard() {
               <tbody>
                 {chamados.map((item, index) => {
                   return (
-                    <tr>
+                    <tr key={index}>
                       <td data-label="Cliente">{item.cliente}</td>
                       <td data-label="Assunto">{item.assunto}</td>
                       <td data-label="Status">
@@ -152,7 +162,7 @@ export default function Dashboard() {
                       </td>
                       <td data-label="Cadastrado">{item.createdFormated}</td>
                       <td data-label="#">
-                        <button className="action" style={{ backgroundColor: '#3583f6' }}>
+                        <button className="action" style={{ backgroundColor: '#3583f6' }} onClick={() => togglePostModal(item)}>
                           <FiSearch color="#FFF" size={17} />
                         </button>
 
@@ -174,6 +184,13 @@ export default function Dashboard() {
 
 
       </div>
+
+      {showPostModal && (
+        <Modal
+          conteudo={detail}
+          close={togglePostModal}
+        />
+      )}
     </div>
   )
 }
